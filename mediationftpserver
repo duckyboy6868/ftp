@@ -1,0 +1,91 @@
+* FTP users:
+- cài đặt ftp server
+rpm -ivh vsftpd.rpm
+
+- cấu hình ftp server
+vi /etc/vsftpd/vsftpd.conf
++ thêm các dòng sau:
+pam_service_name=vsftpd
+userlist_enable=YES
+tcp_wrappers=YES
+pasv_enable=YES
+pasv_min_port=30000
+pasv_max_port=31000
+userlist_enable=YES
+userlist_file=/etc/vsftpd/user_list
+userlist_deny=NO
+chroot_local_user=YES
+allow_writeable_chroot=YES
+xferlog_file=/var/log/vsftpd.log
+xferlog_enable=YES
+xferlog_std_format=NO
+log_ftp_protocol=YES
+
+- tạo các user và gán home folder, group
+groupadd mediation
+useradd billing_in -d /dr1/outputbackup1/output/YHA/ALUIN/ -G mediation
+useradd billing_msc -d /dr1/outputbackup1/output/YHA/EricssonMSC/ -G mediation
+
+- đặt password cho các user
+
+passwd billing_in
+passwd billing_msc
+
+- edit file user_list để thêm user có quyền ftp
+vi /etc/vsftpd/user_list
+
+- gán quyền truy cập folder cho các user
+chown -Rf mediation:mediation /
+chown -Rf billing_in /dr1/outputbackup1/output/YHA/ALUIN/
+chown -Rf billing_msc /dr1/outputbackup1/output/YHA/EricssonMSC/
+- Cấu hình logrotate
+vi vsftpd
+sửa nội dung như sau:
+/var/log/vsftpd.log {
+    # ftpd doesn't handle SIGHUP properly
+        daily
+        compress
+        maxage 7
+        missingok
+        notifempty
+        sharedscripts
+        delaycompress
+
+}
+
+/var/log/xferlog {
+    # ftpd doesn't handle SIGHUP properly
+        nocompress
+        missingok
+
+}
+
+
+* SFTP users:
+- tạo các user và gán home folder, group
+groupadd mediation
+useradd billing_in -d /dr1/outputbackup1/output/YHA/ALUIN/ -G mediation
+useradd billing_msc -d /dr1/outputbackup1/output/YHA/EricssonMSC/ -G mediation
+
+- đặt password cho các user
+passwd billing_in
+passwd billing_msc
+
+- edit file sshd.conf
+vim /etc/ssh/sshd_config
+edit nội dung như sau:
+#Subsystem      sftp    /usr/libexec/openssh/sftp-server
+Subsystem sftp internal-sftp
+AllowUsers root
+Match group mediation
+        AllowUsers user_được_cho_phép@IP_được_cho_phép
+        ChrootDirectory đường_dẫn_thư_mục_của_group
+        AllowTcpForwarding no
+        X11Forwarding no
+
+- gán quyền cho thư mục của user
+chmod -Rf 555 đường_dẫn_thư_mục_của_group 
+
+
+
+
