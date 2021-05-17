@@ -1,0 +1,52 @@
+#!/bin/bash
+HOST='10.10.88.182'
+USER='ducvq'
+PASS='123456'
+TARGETFOLDER='/'
+SOURCEFOLDER='/usr/test/'
+
+lftp -f "
+open $HOST
+user $USER $PASS
+lcd $SOURCEFOLDER
+mirror -c --verbose $TARGETFOLDER $SOURCEFOLDER
+bye
+"
+
+
+
+
+#!/bin/sh
+HOST='10.10.88.182'
+USER='ducvq'
+PASSWD='123456'
+LOCALPATH='/usr/test/'
+FILE='text3'
+DIR='/usr/testcopy/'
+
+#echo ftp -n $HOST <<END_SCRIPT
+ftp -n $HOST <<END_SCRIPT
+quote USER $USER
+quote PASS $PASSWD
+cd $DIR
+lcd $LOCALPATH
+put $FILE
+quit
+END_SCRIPT
+exit 0
+
+#!/bin/bash
+HOST='10.50.8.110'
+USER='noc_tbvb'
+PASS='abc@#$^&'
+SOURCEFOLDER='/Steering/'
+TARGETFOLDER='/opt/Roamware/icampuser/Roamware/logs/bigdata_file/inbound_profile/'
+
+lftp -f "
+open $HOST
+user $USER 'abc@#$^&'
+cd $SOURCEFOLDER
+lcd $TARGETFOLDER
+mirror -R -n --verbose $TARGETFOLDER $SOURCEFOLDER
+bye
+"
